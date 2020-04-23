@@ -10,9 +10,9 @@ using Pulumi.Azure.Storage.Inputs;
 
 namespace Demo1
 {
-    internal class MyStack : Stack
+    internal class ASWebsiteStack : Stack
     {
-        public MyStack()
+        public ASWebsiteStack()
         {
             var projectName = Deployment.Instance.ProjectName.ToLower();
             var stackName = Deployment.Instance.StackName;
@@ -33,6 +33,7 @@ namespace Demo1
                 AccountReplicationType = "LRS",
                 AccountTier = "Standard",
                 AccountKind = "StorageV2",
+                EnableHttpsTrafficOnly = true,
                 StaticWebsite = new AccountStaticWebsiteArgs
                 {
                     IndexDocument = "index.html",
@@ -55,13 +56,13 @@ namespace Demo1
                 });
             }
             
-            storageAccount.PrimaryBlobConnectionString.Apply(async cs => await EnableStaticSites(cs));
+            //storageAccount.PrimaryBlobConnectionString.Apply(async cs => await EnableStaticSite(cs));
 
             // Export the web endpoint for the storage account
             StorageWebsite = storageAccount.PrimaryWebEndpoint;
         }
         
-        static async Task EnableStaticSites(string connectionString)
+        static async Task EnableStaticSite(string connectionString)
         {
             var sa = CloudStorageAccount.Parse(connectionString);
 
