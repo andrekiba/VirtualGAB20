@@ -6,7 +6,7 @@ using Pulumi.Azure.Storage;
 
 namespace VirtualGAB20Demo2
 {
-    internal class FuncStack : Stack
+    public class FuncStack : Stack
     {
         public FuncStack()
         {
@@ -25,6 +25,7 @@ namespace VirtualGAB20Demo2
 
             #region Azure Storage
             
+            /*
             var storageAccountName = $"{projectName}{stackName}st";
             var storageAccount = new Account(storageAccountName, new AccountArgs
             {
@@ -33,11 +34,13 @@ namespace VirtualGAB20Demo2
                 AccountReplicationType = "LRS",
                 AccountTier = "Standard"
             });
+            */
             
             #endregion
             
             #region Func Blob
             
+            /*
             var container = new Container("zips", new ContainerArgs
             {
                 StorageAccountName = storageAccount.Name,
@@ -53,11 +56,13 @@ namespace VirtualGAB20Demo2
             });
 
             var codeBlobUrl = SharedAccessSignature.SignedBlobReadUrl(blob, storageAccount);
+            */
             
             #endregion 
             
             #region AppService Plan
             
+            /*
             var planName = $"{projectName}-{stackName}-plan";
             var appServicePlan = new Plan(planName, new PlanArgs
             {
@@ -70,11 +75,13 @@ namespace VirtualGAB20Demo2
                     Size = "Y1"
                 }
             });
+            */
 
             #endregion 
             
             #region Function
             
+            /*
             var funcName = $"{projectName}-{stackName}-func";
             var func = new FunctionApp(funcName, new FunctionAppArgs
             {
@@ -89,17 +96,26 @@ namespace VirtualGAB20Demo2
                 StorageConnectionString = storageAccount.PrimaryConnectionString,
                 Version = "~3"
             });
+            */
             
             #endregion 
             
-            this.Endpoint = Output.Format($"https://{func.DefaultHostname}/api/Hello?name=GlobalAzure");
+            //Endpoint = Output.Format($"https://{func.DefaultHostname}/api/Hello?name=GlobalAzure");
             
-            // var func1Name = $"{projectName}-{stackName}-func";
-            // var func1 = new ArchiveFunctionApp(func1Name, new ArchiveFunctionAppArgs
-            // {
-            //     ResourceGroupName = resourceGroup.Name,
-            //     Archive = new FileArchive("../VirtualGAB20Func/bin/Debug/netcoreapp3.1/publish")
-            // });
+            #region Abstraction
+            
+            /*
+            var func1Name = $"{projectName}-{stackName}-func";
+            var func1 = new ArchiveFunctionApp(func1Name, new ArchiveFunctionAppArgs
+            {
+                ResourceGroupName = resourceGroup.Name,
+                Archive = new FileArchive("../VirtualGAB20Func/bin/Debug/netcoreapp3.1/publish")
+            });
+            
+            Endpoint = Output.Format($"{func1.Endpoint}Hello?name=GlobalAzure");
+            */
+            
+            #endregion 
         }
 
         [Output]

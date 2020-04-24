@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text;
 using Pulumi;
 using Pulumi.Azure.AppService;
 using Pulumi.Azure.AppService.Inputs;
@@ -7,10 +9,12 @@ namespace VirtualGAB20Demo2
 {
     public class ArchiveFunctionApp : ComponentResource
     {
-        public Output<string> AppId { get; private set; } = null!;
+        [Output] public Output<string> AppId { get; set; } = null!;
 
-        public ArchiveFunctionApp(string name, ArchiveFunctionAppArgs args, ComponentResourceOptions? options = null) 
-            : base(nameof(ArchiveFunctionApp), name, options)
+        [Output] public Output<string> Endpoint { get; set; } = null!;
+
+        public ArchiveFunctionApp(string name, ArchiveFunctionAppArgs args) 
+            : base(nameof(ArchiveFunctionApp), name)
         {
             var projectName = Deployment.Instance.ProjectName.ToLower();
             var stackName = Deployment.Instance.StackName;
@@ -26,7 +30,7 @@ namespace VirtualGAB20Demo2
             }, opts);
             
             var planName = $"{projectName}-{stackName}-plan";
-            var appServicePlan = new Plan(planName, new PlanArgs
+            var appServicePlan = args.Plan ?? new Plan(planName, new PlanArgs
             {
                 Name = planName,
                 ResourceGroupName = args.ResourceGroupName,
@@ -64,16 +68,18 @@ namespace VirtualGAB20Demo2
                 AppServicePlanId = appServicePlan.Id,
                 AppSettings = args.AppSettings,
                 StorageConnectionString = storageAccount.PrimaryConnectionString,
-                Version = "~3"
+                Version = args.Version
             });
             
             AppId = func.Id;
+            Endpoint = Output.Format($"https://{func.DefaultHostname}/api/");
         }
     }
     
     public class ArchiveFunctionAppArgs
     {
         public Input<string> ResourceGroupName { get; set; } = null!;
+        public Plan Plan { get; set; }
         public Input<AssetOrArchive> Archive { get; set; } = null!;
     
         private InputMap<string>? appSettings;
@@ -82,27 +88,6 @@ namespace VirtualGAB20Demo2
             get => appSettings ??= new InputMap<string>();
             set => appSettings = value;
         }
-    }
-    
-    public interface IRegionalEndpoint
-    {
-        // Type of the endpoint
-        Input<string> Type { get; }
-        // Azure resource ID (App Service and Public IP are supported)
-        Input<string>? Id { get; }
-        // An arbitrary URL for other resource types
-        Input<string>? Url { get; }
-    }
-
-    public class AzureEndpoint : IRegionalEndpoint
-    {
-        public Input<string> Type => "azureEndpoints";
-        public Input<string> Id { get; }
-
-        public Input<string>? Url => null;
-        public AzureEndpoint(Input<string> id)
-        {
-            this.Id = id;
-        }
+        public Input<string> Version { get; set; } = "~3";
     }
 }

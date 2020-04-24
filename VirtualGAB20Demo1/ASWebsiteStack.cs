@@ -10,7 +10,7 @@ using Pulumi.Azure.Storage.Inputs;
 
 namespace VirtualGAB20Demo1
 {
-    internal class ASWebsiteStack : Stack
+    public class ASWebsiteStack : Stack
     {
         public ASWebsiteStack()
         {
@@ -45,10 +45,13 @@ namespace VirtualGAB20Demo1
                 }
             });
             
+            //storageAccount.PrimaryBlobConnectionString.Apply(async cs => await EnableStaticSite(cs));
+            
             #endregion
             
             #region Blobs
             
+            /*
             var files = Directory.GetFiles("./wwwroot");
             foreach (var file in files)
             {
@@ -63,10 +66,9 @@ namespace VirtualGAB20Demo1
                     Source = new FileAsset(file)
                 });
             }
+            */
             
-            #endregion 
-            
-            //storageAccount.PrimaryBlobConnectionString.Apply(async cs => await EnableStaticSite(cs));
+            #endregion
 
             // Export the web endpoint for the storage account
             StorageWebsite = storageAccount.PrimaryWebEndpoint;
